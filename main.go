@@ -1,22 +1,28 @@
 package main
 
 import (
-	"api/infrastructure/api/handler"
+	"api/config"
 	"api/infrastructure/api/router"
 	"api/infrastructure/datastore"
-	"api/interface/controllers"
-	"api/usecase/service"
+	"api/registry"
+	"github.com/go-playground/validator/v10"
 	"github.com/julienschmidt/httprouter"
+	"net/http"
 )
 
 func main() {
+	config.LoadConfig()
+
 	db := datastore.NewMySQL()
 	r := httprouter.New()
-	rp := datastore.NewUserRepository(db)
-	s := service.NewUserService(rp)
-	c := controllers.NewUserController(s)
-	h := handler.NewUserHandler(c)
+	v := validator.New()
+
+	rg :=registry.NewInteractor(db, v)
+	h := rg.NewAppHandler()
+
 	router.NewRouter(r, h)
 
 	defer db.Close()
+
+	http.ListenAndServe(":8080", r)
 }

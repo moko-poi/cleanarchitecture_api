@@ -4,19 +4,21 @@ import (
 	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+
+	"api/config"
 )
 
 func NewMySQL() *gorm.DB {
 	connectString := fmt.Sprintf(
 		"%s:%s@tcp(%s:%s)/%s%s",
-		"docker",
-		"docker",
-		"0.0.0.0",
-		"3306",
-		"my_testdb",
-		"?charset=utf8&parseTime=True&loc=Local",
+		config.C.Mysql.USER,
+		config.C.Mysql.PASS,
+		config.C.Mysql.HOST,
+		config.C.Mysql.PORT,
+		config.C.Mysql.DBNAME,
+		config.C.Mysql.OPTION,
 	)
-	db, err := gorm.Open("mysql", connectString)
+	db, err := gorm.Open(config.C.Mysql.DBMS, connectString)
 	if err != nil {
 		panic(err.Error())
 	}
